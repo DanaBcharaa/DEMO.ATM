@@ -413,13 +413,16 @@
   }
 }
 
-  @media (max-width: 480px) {
+@media (max-width: 480px) {
 
   .receipt-output {
-    height: 180px !important;
+    height: auto !important;
+    max-height: 220px;
+    overflow-y: auto;
   }
 
 }
+
 
 </style>
 </head>
@@ -1135,4 +1138,5 @@ function processDepositTransaction() {
 </body>
 
 </html>
+
 
