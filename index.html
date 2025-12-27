@@ -386,7 +386,7 @@
 .language-selector {
   display: none !important;
 }
-  
+
 @media (max-width: 480px) {
 
   .atm-container {
@@ -412,6 +412,7 @@
     padding: 6px;
   }
 }
+
 
 
 </style>
@@ -499,8 +500,12 @@
     currentLanguage: 'en',
     currentPhase: 'lang',
     enteredPin: '',
-    lastTransaction: null
+    lastTransaction: null,
+    balance: 520
   };
+  /*function debugBalance(label) {
+    console.log(label, applicationState.balance);
+  }*/
 
   // Strings
   const translations = {
@@ -957,18 +962,33 @@ function processPinInput(keyValue) {
     document.getElementById('back-to-transactions').onclick = displayTransactionMenu;
   }
 
-  function executeWithdrawal(amount) {
-    applicationState.lastTransaction = { type: 'withdraw', amount: amount };
-    elements.statusText.textContent = translations[applicationState.currentLanguage].ejectCash;
-    elements.cashDispenser.classList.add('active');
-    elements.dispensedCash.style.height = '116px';
-    
-    setTimeout(() => {
-      elements.cashDispenser.classList.remove('active');
-      elements.dispensedCash.style.height = '0px';
-      displayReceiptPrompt();
-    }, 1700);
+function executeWithdrawal(amount) {
+  const lang = translations[applicationState.currentLanguage];
+
+  if (amount > applicationState.balance) {
+    alert(
+      applicationState.currentLanguage === 'en'
+        ? 'Insufficient balance. Please check your balance.'
+        : 'الرصيد غير كافٍ. يرجى التحقق من الرصيد.'
+    );
+
+    displayTransactionMenu();
+    return;
   }
+
+  applicationState.balance -= amount;
+  applicationState.lastTransaction = { type: 'withdraw', amount };
+
+  elements.cashDispenser.classList.add('active');
+  elements.dispensedCash.style.height = '116px';
+
+  setTimeout(() => {
+    elements.cashDispenser.classList.remove('active');
+    elements.dispensedCash.style.height = '0px';
+    displayReceiptPrompt();
+  }, 1700);
+}
+
 
  function displayReceiptPrompt() {
   applicationState.currentPhase = 'askReceipt';
@@ -1018,7 +1038,8 @@ function processPinInput(keyValue) {
     
     elements.screen.innerHTML = `
       <h2 class="screen-title">${lang.balance}</h2>
-      <p class="screen-subtitle">${lang.available}: 520 ${lang.kd}</p>
+      <p class="screen-subtitle">${lang.available}: ${applicationState.balance} ${lang.kd}
+</p>
       <div class="navigation-bar">
         <div class="action-button" id="back-to-transactions">${lang.back}</div>
         <div class="action-button" id="end-session">${lang.end}</div>
@@ -1043,7 +1064,7 @@ function processDepositTransaction() {
       <div class="action-button" id="print-receipt">${lang.receiptBtn}</div>
     </div>
   `;
-  
+  applicationState.balance += 100;
   elements.cashDispenser.classList.add('active');
   elements.dispensedCash.style.height = '116px';
   
@@ -1126,8 +1147,4 @@ function processDepositTransaction() {
 })();
 </script>
 </body>
-
 </html>
-
-
-
